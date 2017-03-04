@@ -71,6 +71,15 @@ void CTranslation::Add(const CString& sIds, const CString& sMsgstr)
 	}
 }
 
+inline CString Escape(CString sText)
+{
+	sText.Replace( _T("\""), _T("\\\"") );
+	sText.Replace( _T("\t"), _T("\\t") );
+	sText.Replace( _T("\n"), _T("\\n") );
+	sText.Remove( _T('\r') );
+	return sText;
+}
+
 CString& CTranslation::Decode(CString& str)
 {
 	CString tmp;
@@ -311,15 +320,23 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr)
 			}
 			sLine.ReleaseBuffer();
 
-			sLine.Trim( _T("\r\n") );
+			sLine.TrimLeft();
+			sLine.TrimRight( _T("\r\n") );
 
-			int nSplit = sLine.Find( _T('=') );
+			if ( sLine.IsEmpty() )
+				// Skip empty line
+				continue;
+
+			if ( sLine.GetAt( 0 ) == _T('#') )
+				// Skip comments
+				continue;
+
+			// "key=value"
+			const int nSplit = sLine.Find( _T('=') );
 			if ( nSplit > 0 )
 			{
-				CString sId = sLine.Left( nSplit );
+				const CString sId = sLine.Left( nSplit ).Trim();
 				const CString sMsgid = sLine.Mid( nSplit + 1 );
-
-				sId.Remove( _T(' ') );
 
 				if ( bMsgstr )
 					Add( sId, sMsgid );
@@ -368,8 +385,8 @@ bool CTranslation::SavePo(const CString& sFilename) const
 
 			_fputts( _T("\n"), fileOut );
 			_fputts( _T("#:") + trans.GetId() + _T("\n"), fileOut );
-			_fputts( _T("msgid \"") + sMsgid + _T("\"\n"), fileOut );
-			_fputts( _T("msgstr \"") + trans.m_sMsgstr + _T("\"\n"), fileOut );
+			_fputts( _T("msgid \"") + Escape( sMsgid ) + _T("\"\n"), fileOut );
+			_fputts( _T("msgstr \"") + Escape( trans.m_sMsgstr ) + _T("\"\n"), fileOut );
 		}
 
 		bResult = true;
