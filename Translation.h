@@ -82,10 +82,12 @@ public:
 	}
 
 	// Add English
-	void SetAt(const CString& sIds, const CString& sMsgid);
+	void SetAt(const CString& sId, const CString& sMsgid);
+	void SetAt(const CStringList& lIds, const CString& sMsgid);
 
 	// Add localization
-	void Add(const CString& sIds, const CString& sMsgstr);
+	void Add(const CString& sId, const CString& sMsgstr);
+	void Add(const CStringList& lIds, const CString& sMsgstr);
 
 	bool LoadPo(const CString& sFilename);
 	bool LoadLang(const CString& sFilename, bool bMsgstr = false);
@@ -98,5 +100,6 @@ private:
 
 	bool LoadPoFromString(const CString& sContent);
 
-	static CString& Decode(CString& str);
+	static CString Decode(CString str);
+	static CString Escape(CString str);
 };

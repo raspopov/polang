@@ -21,66 +21,68 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include "Translation.h"
 
-void CTranslation::SetAt(const CString& sIds, const CString& sMsgid)
+void CTranslation::SetAt(const CStringList& lIds, const CString& sMsgid)
 {
-	for ( int pos = 0; ; )
+	for ( POSITION pos = lIds.GetHeadPosition(); pos; )
 	{
-		const CString sId = sIds.Tokenize( _T(" "), pos );
-		if ( sId.IsEmpty() )
-			break;
+		SetAt( lIds.GetNext( pos ), sMsgid );
+	}
+}
 
+void CTranslation::SetAt(const CString& sId, const CString& sMsgid)
+{
+	CTrans trans;
+	if ( m_MsgidToTrans.Lookup( sMsgid, trans ) )
+	{
+		// Add new ID to existing Msgid
+		if ( ! trans.m_sId.Find( sId ) )
+		{
+			trans.m_sId.AddTail( sId );
+			m_MsgidToTrans.SetAt( sMsgid, trans );
+		}
+		else
+			TRACE( "Duplicate id: %s\n", (LPCSTR)CT2A( sId ) );
+	}
+	else
+	{
+		// Add new MsgId
+		m_MsgidToTrans.SetAt( sMsgid, CTrans( sId ) );
+	}
+	m_IdToMsgid.SetAt( sId, sMsgid );
+}
+
+void CTranslation::Add(const CString& sId, const CString& sMsgstr)
+{
+	CString sMsgid;
+	if ( m_IdToMsgid.Lookup( sId, sMsgid ) )
+	{
 		CTrans trans;
 		if ( m_MsgidToTrans.Lookup( sMsgid, trans ) )
 		{
-			// Add new ID to existing Msgid
-			if ( ! trans.m_sId.Find( sId ) )
-			{
-				trans.m_sId.AddTail( sId );
-				m_MsgidToTrans.SetAt( sMsgid, trans );
-			}
-			else
-				TRACE( "Duplicate id: %s\n", (LPCSTR)CT2A( sId ) );
+			trans.m_sMsgstr = sMsgstr;
+			m_MsgidToTrans.SetAt( sMsgid, trans );
 		}
-		else
-		{
-			// Add new MsgId
-			m_MsgidToTrans.SetAt( sMsgid, CTrans( sId ) );
-		}
-		m_IdToMsgid.SetAt( sId, sMsgid );
 	}
 }
 
-void CTranslation::Add(const CString& sIds, const CString& sMsgstr)
+void CTranslation::Add(const CStringList& lIds, const CString& sMsgstr)
 {
-	for ( int pos = 0; ; )
+	for ( POSITION pos = lIds.GetHeadPosition(); pos; )
 	{
-		const CString sId = sIds.Tokenize( _T(" "), pos );
-		if ( sId.IsEmpty() )
-			break;
-
-		CString sMsgid;
-		if ( m_IdToMsgid.Lookup( sId, sMsgid ) )
-		{
-			CTrans trans;
-			if ( m_MsgidToTrans.Lookup( sMsgid, trans ) )
-			{
-				trans.m_sMsgstr = sMsgstr;
-				m_MsgidToTrans.SetAt( sMsgid, trans );
-			}
-		}
+		Add( lIds.GetNext( pos ), sMsgstr );
 	}
 }
 
-inline CString Escape(CString sText)
+CString CTranslation::Escape(CString str)
 {
-	sText.Replace( _T("\""), _T("\\\"") );
-	sText.Replace( _T("\t"), _T("\\t") );
-	sText.Replace( _T("\n"), _T("\\n") );
-	sText.Remove( _T('\r') );
-	return sText;
+	str.Replace( _T("\""), _T("\\\"") );
+	str.Replace( _T("\t"), _T("\\t") );
+	str.Replace( _T("\n"), _T("\\n") );
+	str.Remove( _T('\r') );
+	return str;
 }
 
-CString& CTranslation::Decode(CString& str)
+CString CTranslation::Decode(CString str)
 {
 	CString tmp;
 	LPTSTR dst = tmp.GetBuffer( str.GetLength() + 1 );
@@ -124,16 +126,14 @@ CString& CTranslation::Decode(CString& str)
 	}
 	*dst = 0;
 	tmp.ReleaseBuffer();
-	str = tmp;
-	return str;
+	return tmp;
 }
 
 bool CTranslation::LoadPoFromString(const CString& sContent)
 {
 	bool bRet = true;
 
-	CString sId;			// #:
-
+	CStringList lRef;			// #:
 	CString sString, sOriginalLine;
 	enum
 	{
@@ -163,16 +163,21 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 			if ( sLine[ 1 ] == ':' )
 			{
 				// Ref
-				if ( mode == mode_msgstr )
+				switch ( mode )
 				{
+				case mode_msgstr:
 					// Save previous string
-					if ( ! sId.IsEmpty() && ! sString.IsEmpty() )
-						Add( sId, Decode( sString ) );
-
+					if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
+						Add( lRef, Decode( sString ) );
 					sString.Empty();
-					sId.Empty();
-
+					lRef.RemoveAll();
 					mode = mode_ref;
+					break;
+
+				case mode_ref:
+					lRef.AddTail( sString.Trim() );
+					sString.Empty();
+					break;
 				}
 
 				if ( ! sString.IsEmpty() )
@@ -182,42 +187,27 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 			// else Comments
 			break;
 
+		case _T('M'):
 		case _T('m'):
-			if ( sLine.Mid( 0, 7 ) == _T("msgid \"") )
+			if ( ( mode == mode_start || mode == mode_ref ) && _tcsncicmp( sLine, _T("msgid \""), 7 ) == 0 )
 			{
 				// ID
-				if ( mode != mode_start && mode != mode_ref )
-				{
-					TRACE( "Invalid .po-line #%d: %s\n", nLine, (LPCSTR)CT2A( sOriginalLine ) );
-					bRet = false;
-					break;
-				}
-
-				sId = sString.Trim();
-
+				lRef.AddTail( sString.Trim() );
 				sString.Empty();
 
 				sLine = sLine.Mid( 6, sLine.GetLength() - 6 );
 				mode = mode_msgid;
 			}
-			else if ( sLine.Mid( 0, 8 ) == _T("msgstr \"") )
+			else if ( mode == mode_msgid && _tcsncicmp( sLine, _T("msgstr \""), 8 ) == 0 )
 			{
 				// Translation
-				if ( mode != mode_msgid )
-					sId = sString.Trim();
-				else if ( ! sId.IsEmpty() && ! sString.IsEmpty() )
-					SetAt( sId, Decode( sString ) );
+				if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
+					SetAt( lRef, Decode( sString ) );
 
 				sString.Empty();
 
 				sLine = sLine.Mid( 7, sLine.GetLength() - 7 );
 				mode = mode_msgstr;
-			}
-			else if ( sLine.Mid( 0, 9 ) == _T("msgctxt \"") )
-			{
-				// Context
-				// Ignore silently.
-				break;
 			}
 			else
 			{
@@ -264,8 +254,8 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 	if ( bRet )
 	{
 		// Save last string
-		if ( ! sId.IsEmpty() && ! sString.IsEmpty() )
-			Add( sId, Decode( sString ) );
+		if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
+			Add( lRef, Decode( sString ) );
 	}
 
 	return bRet;
