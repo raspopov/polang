@@ -58,6 +58,7 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="setup\setup.iss" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\Polang.ico">
