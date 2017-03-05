@@ -175,7 +175,13 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 					break;
 
 				case mode_ref:
-					lRef.AddTail( sString.Trim() );
+					for ( int nRefPos = 0; ; )
+					{
+						const CString sRef = sString.Tokenize( _T( " " ), nRefPos );
+						if ( sRef.IsEmpty() )
+							break;
+						lRef.AddTail( sRef );
+					}
 					sString.Empty();
 					break;
 				}
@@ -192,7 +198,13 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 			if ( ( mode == mode_start || mode == mode_ref ) && _tcsncicmp( sLine, _T("msgid \""), 7 ) == 0 )
 			{
 				// ID
-				lRef.AddTail( sString.Trim() );
+				for ( int nRefPos = 0; ; )
+				{
+					const CString sRef = sString.Tokenize( _T( " " ), nRefPos );
+					if ( sRef.IsEmpty() )
+						break;
+					lRef.AddTail( sRef );
+				}
 				sString.Empty();
 
 				sLine = sLine.Mid( 6, sLine.GetLength() - 6 );
