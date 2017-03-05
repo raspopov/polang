@@ -43,7 +43,7 @@ CPolangDlg::CPolangDlg(CWnd* pParent /*=NULL*/)
 	, m_sLangFilename	( theApp.GetProfileString( SETTINGS, LANG ) )
 	, m_sPoFilename		( theApp.GetProfileString( SETTINGS, PO ) )
 {
-	m_hIcon = AfxGetApp()->LoadIcon( IDR_MAINFRAME );
+	m_hIcon = theApp.LoadIcon( IDR_MAINFRAME );
 }
 
 void CPolangDlg::DoDataExchange(CDataExchange* pDX)
@@ -200,7 +200,7 @@ void CPolangDlg::OnOK()
 	{
 		// en_US.lang + X.lang -> X.po
 
-		if ( m_sEnglishFilename.IsEmpty() || m_sLangFilename.IsEmpty() || m_sPoFilename.IsEmpty() ||
+		if ( m_sEnglishFilename.IsEmpty() || m_sPoFilename.IsEmpty() ||
 			 GetFileAttributes( m_sEnglishFilename ) == INVALID_FILE_ATTRIBUTES )
 		{
 			AfxMessageBox( IDS_MSG_NO_FILE, MB_OK | MB_ICONEXCLAMATION );
