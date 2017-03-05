@@ -414,7 +414,11 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 		{
 			const CString sId = trans.m_sId.GetNext( posI );
 			if ( ! trans.m_sMsgstr.IsEmpty() )
-				out.SetAt( sId + _T("=") + trans.m_sMsgstr + _T("\n"), 0 );
+			{
+				CString str = trans.m_sMsgstr;
+				str.Replace( _T("\n"), _T("\\n") );
+				out.SetAt( sId + _T("=") + str + _T("\n"), 0 );
+			}
 		}
 	}
 
