@@ -54,7 +54,6 @@ protected:
 	afx_msg void OnBnClickedRadio();
 	afx_msg void OnDestroy();
 	afx_msg void OnGetMinMaxInfo( MINMAXINFO* lpMMI );
-	afx_msg void OnEnChangeLangFile();
 
 	DECLARE_MESSAGE_MAP()
 };

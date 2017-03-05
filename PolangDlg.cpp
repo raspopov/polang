@@ -91,7 +91,6 @@ BEGIN_MESSAGE_MAP(CPolangDlg, CDialogEx)
 	ON_BN_CLICKED( IDC_RADIO1, &CPolangDlg::OnBnClickedRadio )
 	ON_BN_CLICKED( IDC_RADIO2, &CPolangDlg::OnBnClickedRadio )
 	ON_WM_DESTROY()
-	ON_EN_CHANGE( IDC_LANG_FILE, &CPolangDlg::OnEnChangeLangFile )
 END_MESSAGE_MAP()
 
 // CPolangDlg message handlers
@@ -165,24 +164,20 @@ void CPolangDlg::OnOK()
 {
 	CWaitCursor wc;
 
-	UpdateData();
-
-	if ( m_sPoFilename.IsEmpty() )
-	{
-		if ( m_sLangFilename.IsEmpty() )
-			// en_US.lang -> en_US.pot
-			m_sPoFilename = m_sEnglishFilename.Left( PathFindExtension( (LPCTSTR)m_sEnglishFilename ) - (LPCTSTR)m_sEnglishFilename ) + _T(".pot");
-		else
-			// X.lang -> X.po
-			m_sPoFilename = m_sLangFilename.Left( PathFindExtension( (LPCTSTR)m_sLangFilename ) - (LPCTSTR)m_sLangFilename ) + _T(".po");
-
-		UpdateData( FALSE );
-	}
+	if ( ! UpdateData() )
+		return;
 
 	CTranslation translations;
 	if ( m_bOptions )
 	{
 		// X.po -> X.lang
+
+		if ( m_sPoFilename.IsEmpty() || m_sLangFilename.IsEmpty() ||
+			 GetFileAttributes( m_sPoFilename ) == INVALID_FILE_ATTRIBUTES )
+		{
+			AfxMessageBox( IDS_MSG_NO_FILE, MB_OK | MB_ICONEXCLAMATION );
+			return;
+		}
 
 		if ( ! translations.LoadPo( m_sPoFilename ) )
 		{
@@ -204,6 +199,13 @@ void CPolangDlg::OnOK()
 	else
 	{
 		// en_US.lang + X.lang -> X.po
+
+		if ( m_sEnglishFilename.IsEmpty() || m_sLangFilename.IsEmpty() || m_sPoFilename.IsEmpty() ||
+			 GetFileAttributes( m_sEnglishFilename ) == INVALID_FILE_ATTRIBUTES )
+		{
+			AfxMessageBox( IDS_MSG_NO_FILE, MB_OK | MB_ICONEXCLAMATION );
+			return;
+		}
 
 		if ( ! translations.LoadLang( m_sEnglishFilename ) )
 		{
@@ -253,21 +255,4 @@ void CPolangDlg::OnDestroy()
 	theApp.WriteProfileString( SETTINGS, PO, m_sPoFilename );
 
 	__super::OnDestroy();
-}
-
-void CPolangDlg::OnEnChangeLangFile()
-{
-	UpdateData();
-
-	if ( ! m_bOptions )
-	{
-		if ( m_sLangFilename.IsEmpty() )
-			// en_US.lang -> en_US.pot
-			m_sPoFilename = m_sEnglishFilename.Left( PathFindExtension( (LPCTSTR)m_sEnglishFilename ) - (LPCTSTR)m_sEnglishFilename ) + _T(".pot");
-		else
-			// X.lang -> X.po
-			m_sPoFilename = m_sLangFilename.Left( PathFindExtension( (LPCTSTR)m_sLangFilename ) - (LPCTSTR)m_sLangFilename ) + _T(".po");
-		
-		UpdateData( FALSE );
-	}
 }
