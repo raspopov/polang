@@ -20,5 +20,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define _WIN32_WINNT 0x0601
+#define _WIN32_WINNT 0x0501
 #include <SDKDDKVer.h>
