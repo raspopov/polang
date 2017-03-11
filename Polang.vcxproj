@@ -224,6 +224,7 @@ if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
     <Text Include="ReadMe.md" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BrowseCtrl.h" />
     <ClInclude Include="Polang.h" />
     <ClInclude Include="PolangDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -232,6 +233,7 @@ if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
     <ClInclude Include="Translation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BrowseCtrl.cpp" />
     <ClCompile Include="Polang.cpp" />
     <ClCompile Include="PolangDlg.cpp" />
     <ClCompile Include="stdafx.cpp">

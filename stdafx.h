@@ -48,6 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <afxdialogex.h>
 #include <afxeditbrowsectrl.h>
 #include <atlcoll.h>
+#include <afxcontrolbars.h>
 
 #ifdef _UNICODE
 #if defined _M_IX86

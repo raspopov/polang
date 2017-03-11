@@ -20,6 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "BrowseCtrl.h"
+
+
 // CPolangDlg dialog
 
 class CPolangDlg : public CDialogEx
@@ -33,17 +36,22 @@ public:
 #endif
 
 protected:
-	HICON				m_hIcon;
-	CMFCEditBrowseCtrl	m_wndEnglish;
-	CMFCEditBrowseCtrl	m_wndLang;
-	CMFCEditBrowseCtrl	m_wndPo;
-	BOOL				m_bOptions;
-	CRect				m_rcInitial;
-	CString				m_sEnglishFilename;
-	CString				m_sLangFilename;
-	CString				m_sPoFilename;
+	enum { OPT_NULL = -1, OPT_POT = 0, OPT_PO = 1, OPT_LANG = 2 };
 
-	void UpdateInterface();
+	HICON				m_hIcon;
+	CBrowseCtrl			m_wnd1File;
+	CBrowseCtrl			m_wnd2File;
+	CBrowseCtrl			m_wnd3File;
+	CStatic				m_wnd1Title;
+	CStatic				m_wnd2Title;
+	CStatic				m_wnd3Title;
+	CButton				m_wnd1Open;
+	CButton				m_wnd2Open;
+	CButton				m_wnd3Open;
+	int					m_nOptions, m_nOptionsLast;
+	CRect				m_rcInitial;
+
+	void UpdateInterface(int nOptions);
 
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	virtual BOOL OnInitDialog();
@@ -53,7 +61,10 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnBnClickedRadio();
 	afx_msg void OnDestroy();
-	afx_msg void OnGetMinMaxInfo( MINMAXINFO* lpMMI );
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
+	afx_msg void OnBnClicked1Open();
+	afx_msg void OnBnClicked2Open();
+	afx_msg void OnBnClicked3Open();
 
 	DECLARE_MESSAGE_MAP()
 };
