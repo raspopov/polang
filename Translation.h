@@ -100,6 +100,8 @@ private:
 
 	bool LoadPoFromString(const CString& sContent);
 
-	static CString Decode(CString str);
-	static CString Escape(CString str);
+	static CStringA UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput);
+	static CStringA UTF8Encode(__in const CStringW& strInput);
+	static CString Decode(__in CString str);
+	static CString Escape(__in CString str);
 };

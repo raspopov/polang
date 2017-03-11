@@ -73,7 +73,25 @@ void CTranslation::Add(const CStringList& lIds, const CString& sMsgstr)
 	}
 }
 
-CString CTranslation::Escape(CString str)
+CStringA CTranslation::UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput)
+{
+	CStringA strUTF8;
+	int nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, strUTF8.GetBuffer( nInput * 4 + 1 ), nInput * 4 + 1, NULL, NULL );
+	if ( nUTF8 == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER )
+	{
+		nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, NULL, 0, NULL, NULL );
+		nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, strUTF8.GetBuffer( nUTF8 ), nUTF8, NULL, NULL );
+	}
+	strUTF8.ReleaseBuffer( nUTF8 );
+	return strUTF8;
+}
+
+CStringA CTranslation::UTF8Encode(__in const CStringW& strInput)
+{
+	return UTF8Encode( strInput, strInput.GetLength() );
+}
+
+CString CTranslation::Escape(__in CString str)
 {
 	str.Replace( _T("\""), _T("\\\"") );
 	str.Replace( _T("\t"), _T("\\t") );
@@ -82,7 +100,7 @@ CString CTranslation::Escape(CString str)
 	return str;
 }
 
-CString CTranslation::Decode(CString str)
+CString CTranslation::Decode(__in CString str)
 {
 	CString tmp;
 	LPTSTR dst = tmp.GetBuffer( str.GetLength() + 1 );
@@ -364,20 +382,21 @@ bool CTranslation::SavePo(const CString& sFilename) const
 
 	// Create output file
 	FILE* fileOut = NULL;
-	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wt,ccs=UTF-8") ) == 0 && fileOut )
+	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wb") ) == 0 && fileOut )
 	{
 		// Header
-		_fputts(
-			_T("msgid \"\"\n")
-			_T("msgstr \"\"\n")
-			_T("\"Project-Id-Version: \\n\"\n")
-			_T("\"POT-Creation-Date: \\n\"\n")
-			_T("\"PO-Revision-Date: \\n\"\n")
-			_T("\"Last-Translator: \\n\"\n")
-			_T("\"Language-Team: \\n\"\n")
-			_T("\"MIME-Version: 1.0\\n\"\n")
-			_T("\"Content-Type: text/plain; charset=UTF-8\\n\"\n")
-			_T("\"Content-Transfer-Encoding: 8bit\\n\"\n"), fileOut );
+		fputs(
+			"msgid \"\"\n"
+			"msgstr \"\"\n"
+			"\"Project-Id-Version: \\n\"\n"
+			"\"POT-Creation-Date: \\n\"\n"
+			"\"PO-Revision-Date: \\n\"\n"
+			"\"Last-Translator: \\n\"\n"
+			"\"Language-Team: \\n\"\n"
+			"\"MIME-Version: 1.0\\n\"\n"
+			"\"Content-Type: text/plain; charset=UTF-8\\n\"\n"
+			"\"Content-Transfer-Encoding: 8bit\\n\"\n"
+			"\"X-Poedit-SourceCharset: UTF-8\\n\"\n", fileOut );
 
 		for ( POSITION pos = GetHeadPosition(); pos; )
 		{
@@ -385,10 +404,9 @@ bool CTranslation::SavePo(const CString& sFilename) const
 			CTrans trans;
 			GetNext( pos, trans, sMsgid );
 
-			_fputts( _T("\n"), fileOut );
-			_fputts( _T("#:") + trans.GetId() + _T("\n"), fileOut );
-			_fputts( _T("msgid \"") + Escape( sMsgid ) + _T("\"\n"), fileOut );
-			_fputts( _T("msgstr \"") + Escape( trans.m_sMsgstr ) + _T("\"\n"), fileOut );
+			fputs( "\n#:" + UTF8Encode( trans.GetId() ) + "\n", fileOut );
+			fputs( "msgid \"" + UTF8Encode( Escape( sMsgid ) ) + "\"\n", fileOut );
+			fputs( "msgstr \"" + UTF8Encode( Escape( trans.m_sMsgstr ) ) + "\"\n", fileOut );
 		}
 
 		bResult = true;
@@ -403,6 +421,7 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 {
 	bool bResult = false;
 
+	// Sort output strings excluding empty ones
 	CRBMap < CString, int > out;
 	for ( POSITION posT = GetHeadPosition(); posT; )
 	{
@@ -417,7 +436,7 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 			{
 				CString str = trans.m_sMsgstr;
 				str.Replace( _T("\n"), _T("\\n") );
-				out.SetAt( sId + _T("=") + str + _T("\n"), 0 );
+				out.SetAt( sId + _T("=") + str, 0 );
 			}
 		}
 	}
@@ -427,12 +446,11 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 
 	// Create output file
 	FILE* fileOut = NULL;
-	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wt,ccs=UTF-8") ) == 0 && fileOut )
+	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wb") ) == 0 && fileOut )
 	{
-		// Sorted output
 		for ( POSITION pos = out.GetHeadPosition(); pos; )
 		{
-			_fputts( out.GetNextKey( pos ), fileOut );
+			fputs( UTF8Encode( out.GetNextKey( pos ) ) + "\n", fileOut );
 		}
 
 		bResult = true;
