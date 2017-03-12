@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class CTrans
 {
 public:
-	inline CTrans() {}
+	inline CTrans() = default;
 
 	inline CTrans(const CString& sId)
 	{
@@ -69,7 +69,7 @@ public:
 class CTranslation
 {
 public:
-	inline CTranslation() {}
+	inline CTranslation() = default;
 
 	inline POSITION GetHeadPosition() const
 	{

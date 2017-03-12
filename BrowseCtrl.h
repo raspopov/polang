@@ -27,7 +27,7 @@ class CBrowseCtrl : public CMFCEditBrowseCtrl
 	DECLARE_DYNAMIC(CBrowseCtrl)
 
 public:
-	CBrowseCtrl() {}
+	inline CBrowseCtrl() = default;
 
 protected:
 	afx_msg void OnDropFiles( HDROP hDropInfo );

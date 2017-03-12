@@ -76,11 +76,11 @@ void CTranslation::Add(const CStringList& lIds, const CString& sMsgstr)
 CStringA CTranslation::UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput)
 {
 	CStringA strUTF8;
-	int nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, strUTF8.GetBuffer( nInput * 4 + 1 ), nInput * 4 + 1, NULL, NULL );
+	int nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, strUTF8.GetBuffer( nInput * 4 + 1 ), nInput * 4 + 1, nullptr, nullptr );
 	if ( nUTF8 == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER )
 	{
-		nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, NULL, 0, NULL, NULL );
-		nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, strUTF8.GetBuffer( nUTF8 ), nUTF8, NULL, NULL );
+		nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, nullptr, 0, nullptr, nullptr );
+		nUTF8 = ::WideCharToMultiByte( CP_UTF8, 0, psInput, nInput, strUTF8.GetBuffer( nUTF8 ), nUTF8, nullptr, nullptr );
 	}
 	strUTF8.ReleaseBuffer( nUTF8 );
 	return strUTF8;
@@ -296,7 +296,7 @@ bool CTranslation::LoadPo(const CString& sFilename)
 	bool bResult = false;
 
 	// Open input file
-	FILE* fileIn = NULL;
+	FILE* fileIn = nullptr;
 	if ( _tfopen_s( &fileIn, _T("\\\\?\\") + sFilename, _T("rt,ccs=UTF-8") ) == 0 && fileIn )
 	{
 		CString sFile;
@@ -327,7 +327,7 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr)
 	bool bResult = false;
 
 	// Open input file
-	FILE* fileIn = NULL;
+	FILE* fileIn = nullptr;
 	if ( _tfopen_s( &fileIn, _T("\\\\?\\") + sFilename, _T("rt,ccs=UTF-8") ) == 0 && fileIn )
 	{
 		while( ! feof( fileIn ) )
@@ -381,7 +381,7 @@ bool CTranslation::SavePo(const CString& sFilename) const
 	CopyFile( _T("\\\\?\\") + sFilename, _T("\\\\?\\") + sFilename + _T(".bak"), FALSE );
 
 	// Create output file
-	FILE* fileOut = NULL;
+	FILE* fileOut = nullptr;
 	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wb") ) == 0 && fileOut )
 	{
 		// Header
@@ -445,7 +445,7 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 	CopyFile( _T("\\\\?\\") + sFilename, _T("\\\\?\\") + sFilename + _T(".bak"), FALSE );
 
 	// Create output file
-	FILE* fileOut = NULL;
+	FILE* fileOut = nullptr;
 	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wb") ) == 0 && fileOut )
 	{
 		for ( POSITION pos = out.GetHeadPosition(); pos; )

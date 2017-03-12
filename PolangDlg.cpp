@@ -291,7 +291,7 @@ void CPolangDlg::OnOK()
 
 		if ( AfxMessageBox( IDS_MSG_PO_SAVE_OK, MB_YESNO | MB_ICONQUESTION ) == IDYES )
 		{
-			ShellExecute( GetSafeHwnd(), NULL, s2Filename, NULL, NULL, SW_NORMAL );
+			ShellExecute( GetSafeHwnd(), nullptr, s2Filename, nullptr, nullptr, SW_NORMAL );
 		}
 		break;
 
@@ -326,7 +326,7 @@ void CPolangDlg::OnOK()
 
 		if ( AfxMessageBox( IDS_MSG_PO_SAVE_OK, MB_YESNO | MB_ICONQUESTION ) == IDYES )
 		{
-			ShellExecute( GetSafeHwnd(), NULL, s3Filename, NULL, NULL, SW_NORMAL );
+			ShellExecute( GetSafeHwnd(), nullptr, s3Filename, nullptr, nullptr, SW_NORMAL );
 		}
 		break;
 
@@ -352,7 +352,7 @@ void CPolangDlg::OnOK()
 
 		if ( AfxMessageBox( IDS_MSG_LANG_SAVE_OK, MB_YESNO | MB_ICONQUESTION ) == IDYES )
 		{
-			ShellExecute( GetSafeHwnd(), NULL, s2Filename, NULL, NULL, SW_NORMAL );
+			ShellExecute( GetSafeHwnd(), nullptr, s2Filename, nullptr, nullptr, SW_NORMAL );
 		}
 		break;
 	}
@@ -386,7 +386,7 @@ void CPolangDlg::OnBnClicked1Open()
 
 	CString sFilename;
 	m_wnd1File.GetWindowText( sFilename );
-	ShellExecute( GetSafeHwnd(), NULL, sFilename, NULL, NULL, SW_NORMAL );
+	ShellExecute( GetSafeHwnd(), nullptr, sFilename, nullptr, nullptr, SW_NORMAL );
 }
 
 void CPolangDlg::OnBnClicked2Open()
@@ -399,7 +399,7 @@ void CPolangDlg::OnBnClicked2Open()
 
 	CString sFilename;
 	m_wnd2File.GetWindowText( sFilename );
-	ShellExecute( GetSafeHwnd(), NULL, sFilename, NULL, NULL, SW_NORMAL );
+	ShellExecute( GetSafeHwnd(), nullptr, sFilename, nullptr, nullptr, SW_NORMAL );
 }
 
 void CPolangDlg::OnBnClicked3Open()
@@ -412,5 +412,5 @@ void CPolangDlg::OnBnClicked3Open()
 
 	CString sFilename;
 	m_wnd3File.GetWindowText( sFilename );
-	ShellExecute( GetSafeHwnd(), NULL, sFilename, NULL, NULL, SW_NORMAL );
+	ShellExecute( GetSafeHwnd(), nullptr, sFilename, nullptr, nullptr, SW_NORMAL );
 }

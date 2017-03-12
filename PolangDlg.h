@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class CPolangDlg : public CDialogEx
 {
 public:
-	CPolangDlg(CWnd* pParent = NULL);	// standard constructor
+	CPolangDlg(CWnd* pParent = nullptr);	// standard constructor
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
