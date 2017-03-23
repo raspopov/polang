@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /*
 
 Polang
@@ -91,12 +93,18 @@ CStringA CTranslation::UTF8Encode(__in const CStringW& strInput)
 	return UTF8Encode( strInput, strInput.GetLength() );
 }
 
-CString CTranslation::Escape(__in CString str)
+CString CTranslation::EscapePo(__in CString str)
 {
 	str.Replace( _T("\""), _T("\\\"") );
 	str.Replace( _T("\t"), _T("\\t") );
 	str.Replace( _T("\n"), _T("\\n") );
 	str.Remove( _T('\r') );
+	return str;
+}
+
+CString CTranslation::EscapeLang(__in CString str)
+{
+	str.Replace( _T( "\n" ), _T( "\\n" ) );
 	return str;
 }
 
@@ -322,9 +330,36 @@ bool CTranslation::LoadPo(const CString& sFilename)
 	return bResult;
 }
 
-bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr)
+CString CTranslation::Get(const CString& sId) const
+{
+	CString sMsgid;
+	if ( m_IdToMsgid.Lookup( sId, sMsgid ) )
+	{
+		CTrans trans;
+		if ( m_MsgidToTrans.Lookup( sMsgid, trans ) )
+		{
+			return trans.m_sMsgstr;
+		}
+	}
+	return CString();
+}
+
+bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CString& sAndSaveToFilename)
 {
 	bool bResult = false;
+
+	FILE* fileAndSaveTo = nullptr;
+	if ( ! sAndSaveToFilename.IsEmpty() )
+	{
+		// Backup old output file
+		CopyFile( _T( "\\\\?\\" ) + sAndSaveToFilename, _T( "\\\\?\\" ) + sAndSaveToFilename + _T( ".bak" ), FALSE );
+
+		// Create output file
+		if ( _tfopen_s( &fileAndSaveTo, _T( "\\\\?\\" ) + sAndSaveToFilename, _T( "wb" ) ) != 0 || ! fileAndSaveTo )
+		{
+			return false;
+		}
+	}
 
 	// Open input file
 	FILE* fileIn = nullptr;
@@ -332,6 +367,8 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr)
 	{
 		while( ! feof( fileIn ) )
 		{
+			bool bSaved = false;
+
 			CString sLine;
 			if ( ! _fgetts( sLine.GetBuffer( 1024 ), 1024, fileIn ) )
 			{
@@ -340,35 +377,48 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr)
 			}
 			sLine.ReleaseBuffer();
 
-			sLine.TrimLeft();
-			sLine.TrimRight( _T("\r\n") );
-
-			if ( sLine.IsEmpty() )
-				// Skip empty line
-				continue;
-
-			if ( sLine.GetAt( 0 ) == _T('#') )
-				// Skip comments
-				continue;
-
 			// "key=value"
 			const int nSplit = sLine.Find( _T('=') );
 			if ( nSplit > 0 )
 			{
 				const CString sId = sLine.Left( nSplit ).Trim();
-				const CString sMsgid = sLine.Mid( nSplit + 1 );
+				const CString sMsgid = sLine.Mid( nSplit + 1 ).TrimRight( _T("\r\n") );
 
-				if ( bMsgstr )
-					Add( sId, sMsgid );
-				else
-					SetAt( sId, sMsgid );
+				if ( ! sId.IsEmpty() &&				// Skip empty key line
+					sId.GetAt( 0 ) != _T( '#' ) )	// Skip comments
+				{
+					if ( fileAndSaveTo )
+					{
+						const CString sMsgstr = Get( sId );
+						if ( ! sMsgstr.IsEmpty() )
+						{
+							fputs( UTF8Encode( sId ) + "=" + UTF8Encode( EscapeLang( sMsgstr ) ) + "\n", fileAndSaveTo );
+							bSaved = true;
+						}
+					}
+					else
+					{
+						if ( bMsgstr )
+							Add( sId, sMsgid );
+						else
+							SetAt( sId, sMsgid );
+					}
 
-				bResult = true;
+					bResult = true;
+				}
+			}
+
+			if ( fileAndSaveTo && ! bSaved )
+			{
+				fputs( UTF8Encode( sLine ), fileAndSaveTo );
 			}
 		}
 
 		fclose( fileIn );
 	}
+
+	if ( fileAndSaveTo )
+		fclose( fileAndSaveTo );
 
 	return bResult;
 }
@@ -405,8 +455,8 @@ bool CTranslation::SavePo(const CString& sFilename) const
 			GetNext( pos, trans, sMsgid );
 
 			fputs( "\n#:" + UTF8Encode( trans.GetId() ) + "\n", fileOut );
-			fputs( "msgid \"" + UTF8Encode( Escape( sMsgid ) ) + "\"\n", fileOut );
-			fputs( "msgstr \"" + UTF8Encode( Escape( trans.m_sMsgstr ) ) + "\"\n", fileOut );
+			fputs( "msgid \"" + UTF8Encode( EscapePo( sMsgid ) ) + "\"\n", fileOut );
+			fputs( "msgstr \"" + UTF8Encode( EscapePo( trans.m_sMsgstr ) ) + "\"\n", fileOut );
 		}
 
 		bResult = true;
@@ -434,9 +484,7 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 			const CString sId = trans.m_sId.GetNext( posI );
 			if ( ! trans.m_sMsgstr.IsEmpty() )
 			{
-				CString str = trans.m_sMsgstr;
-				str.Replace( _T("\n"), _T("\\n") );
-				out.SetAt( sId + _T("=") + str, 0 );
+				out.SetAt( sId + _T("=") + EscapeLang( trans.m_sMsgstr ), 0 );
 			}
 		}
 	}

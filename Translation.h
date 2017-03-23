@@ -81,6 +81,9 @@ public:
 		m_MsgidToTrans.GetNextAssoc( pos, sMsgid, trans );
 	}
 
+	// Get localized string
+	CString Get(const CString& sId) const;
+
 	// Add English
 	void SetAt(const CString& sId, const CString& sMsgid);
 	void SetAt(const CStringList& lIds, const CString& sMsgid);
@@ -90,7 +93,7 @@ public:
 	void Add(const CStringList& lIds, const CString& sMsgstr);
 
 	bool LoadPo(const CString& sFilename);
-	bool LoadLang(const CString& sFilename, bool bMsgstr = false);
+	bool LoadLang(const CString& sFilename, bool bMsgstr = false, const CString& sAndSaveToFilename = CString());
 	bool SavePo(const CString& sFilename) const;
 	bool SaveLang(const CString& sFilename) const;
 
@@ -103,5 +106,6 @@ private:
 	static CStringA UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput);
 	static CStringA UTF8Encode(__in const CStringW& strInput);
 	static CString Decode(__in CString str);
-	static CString Escape(__in CString str);
+	static CString EscapePo(__in CString str);
+	static CString EscapeLang(__in CString str);
 };

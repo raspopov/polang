@@ -45,6 +45,6 @@ extern CPolangApp theApp;
 inline CString LoadString(UINT nId)
 {
 	CString str;
-	str.LoadString( nId );
+	VERIFY( str.LoadString( nId ) );
 	return str;
 }
