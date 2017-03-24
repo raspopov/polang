@@ -390,11 +390,14 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 					if ( fileAndSaveTo )
 					{
 						const CString sMsgstr = Get( sId );
+
 						if ( ! sMsgstr.IsEmpty() )
 						{
 							fputs( UTF8Encode( sId ) + "=" + UTF8Encode( EscapeLang( sMsgstr ) ) + "\n", fileAndSaveTo );
-							bSaved = true;
 						}
+						// else Skip untranslated string
+
+						bSaved = true;
 					}
 					else
 					{
@@ -410,6 +413,7 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 
 			if ( fileAndSaveTo && ! bSaved )
 			{
+				// As is
 				fputs( UTF8Encode( sLine ), fileAndSaveTo );
 			}
 		}
