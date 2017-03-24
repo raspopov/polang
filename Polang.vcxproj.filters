@@ -70,6 +70,12 @@
     <Image Include="res\Polang.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\run.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\down.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.md" />

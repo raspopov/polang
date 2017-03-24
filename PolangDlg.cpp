@@ -63,6 +63,8 @@ void CPolangDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control( pDX, IDC_2_OPEN, m_wnd2Open );
 	DDX_Control( pDX, IDC_3_OPEN, m_wnd3Open );
 
+	DDX_Control( pDX, IDC_2_3_SET, m_wnd23Set );
+
 	DDX_Radio( pDX, IDC_RADIO1, m_nOptions );
 }
 
@@ -123,6 +125,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd3File.SetWindowText( _T("") );
 		m_wnd3File.SetCueBanner( _T("") );
 		m_wnd3Open.EnableWindow( FALSE );
+		m_wnd23Set.EnableWindow( FALSE );
 		break;
 
 	case OPT_PO:
@@ -148,6 +151,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd3File.SetWindowText( s3Filename );
 		m_wnd3File.SetCueBanner( _T("ru_RU.po") );
 		m_wnd3Open.EnableWindow();
+		m_wnd23Set.EnableWindow();
 		break;
 
 	case OPT_LANG:
@@ -169,10 +173,11 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd3File.EnableFileBrowseButton( _T( "lang" ), LoadString( IDS_LANG_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT );
 		s3Filename = theApp.GetProfileString( SETTINGS, VAL_LANG );
 		if ( s3Filename.IsEmpty() && ! s2Filename.IsEmpty() )
-			s2Filename = s2Filename.Left( ( int )( PathFindExtension( ( LPCTSTR )s2Filename ) - ( LPCTSTR )s2Filename ) + 1 ) + _T( "lang" );
+			s3Filename = s2Filename.Left( ( int )( PathFindExtension( ( LPCTSTR )s2Filename ) - ( LPCTSTR )s2Filename ) + 1 ) + _T( "lang" );
 		m_wnd3File.SetWindowText( s3Filename );
 		m_wnd3File.SetCueBanner( _T( "ru_RU.lang" ) );
 		m_wnd3Open.EnableWindow();
+		m_wnd23Set.EnableWindow();
 		break;
 	}
 
@@ -195,6 +200,7 @@ BEGIN_MESSAGE_MAP(CPolangDlg, CDialogEx)
 	ON_BN_CLICKED( IDC_1_OPEN, &CPolangDlg::OnBnClicked1Open )
 	ON_BN_CLICKED( IDC_2_OPEN, &CPolangDlg::OnBnClicked2Open )
 	ON_BN_CLICKED( IDC_3_OPEN, &CPolangDlg::OnBnClicked3Open )
+	ON_BN_CLICKED( IDC_2_3_SET, &CPolangDlg::OnBnClicked23Set )
 END_MESSAGE_MAP()
 
 // CPolangDlg message handlers
@@ -203,10 +209,27 @@ BOOL CPolangDlg::OnInitDialog()
 {
 	__super::OnInitDialog();
 
+	SetWindowText( theApp.m_pszAppName );
+
 	GetWindowRect( m_rcInitial );
 
 	SetIcon( m_hIcon, TRUE );		// Set big icon
 	SetIcon( m_hIcon, FALSE );		// Set small icon
+
+	m_pTips.Create( this, TTS_ALWAYSTIP );
+	m_pTips.Activate( TRUE );
+	m_pTips.SetMaxTipWidth( 300 );
+
+	static CWnd* wnds[] = { &m_wnd1Open, &m_wnd2Open, &m_wnd3Open, &m_wnd23Set };
+	for ( int i = 0; i < _countof( wnds ); ++i )
+	{
+		m_pTips.AddTool( wnds[ i ], LoadString( wnds[ i ]->GetDlgCtrlID() ) );
+	}
+
+	m_wnd1Open.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_RUN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
+	m_wnd2Open.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_RUN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
+	m_wnd3Open.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_RUN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
+	m_wnd23Set.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_DOWN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
 
 	UpdateInterface( m_nOptions );
 
@@ -221,9 +244,12 @@ BOOL CPolangDlg::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
+BOOL CPolangDlg::PreTranslateMessage( MSG* pMsg )
+{
+	m_pTips.RelayEvent( pMsg );
+
+	return __super::PreTranslateMessage( pMsg );
+}
 
 void CPolangDlg::OnPaint()
 {
@@ -428,4 +454,15 @@ void CPolangDlg::OnBnClicked3Open()
 	CString sFilename;
 	m_wnd3File.GetWindowText( sFilename );
 	ShellExecute( GetSafeHwnd(), nullptr, sFilename, nullptr, nullptr, SW_NORMAL );
+}
+
+void CPolangDlg::OnBnClicked23Set()
+{
+	CWaitCursor wc;
+
+	UpdateData();
+
+	m_wnd3File.SetWindowText( _T("") );
+
+	UpdateInterface( m_nOptions );
 }

@@ -253,7 +253,9 @@ if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
     <None Include="setup\setup.iss" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\down.ico" />
     <Image Include="res\Polang.ico" />
+    <Image Include="res\run.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

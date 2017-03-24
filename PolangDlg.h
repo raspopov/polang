@@ -48,14 +48,17 @@ protected:
 	CButton				m_wnd1Open;
 	CButton				m_wnd2Open;
 	CButton				m_wnd3Open;
+	CButton				m_wnd23Set;
 	int					m_nOptions, m_nOptionsLast;
 	CRect				m_rcInitial;
+	CToolTipCtrl		m_pTips;
 
 	void UpdateInterface(int nOptions);
 
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
+	virtual BOOL PreTranslateMessage( MSG* pMsg );
 
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
@@ -65,6 +68,7 @@ protected:
 	afx_msg void OnBnClicked1Open();
 	afx_msg void OnBnClicked2Open();
 	afx_msg void OnBnClicked3Open();
+	afx_msg void OnBnClicked23Set();
 
 	DECLARE_MESSAGE_MAP()
 };
