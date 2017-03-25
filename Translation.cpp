@@ -362,6 +362,7 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 	}
 
 	// Open input file
+	bool bWritten = false;
 	FILE* fileIn = nullptr;
 	if ( _tfopen_s( &fileIn, _T("\\\\?\\") + sFilename, _T("rt,ccs=UTF-8") ) == 0 && fileIn )
 	{
@@ -377,12 +378,14 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 			}
 			sLine.ReleaseBuffer();
 
+			sLine.TrimRight( _T("\r\n") );
+
 			// "key=value"
 			const int nSplit = sLine.Find( _T('=') );
 			if ( nSplit > 0 )
 			{
 				const CString sId = sLine.Left( nSplit ).Trim();
-				const CString sMsgid = sLine.Mid( nSplit + 1 ).TrimRight( _T("\r\n") );
+				const CString sMsgid = sLine.Mid( nSplit + 1 );
 
 				if ( ! sId.IsEmpty() &&				// Skip empty key line
 					sId.GetAt( 0 ) != _T( '#' ) )	// Skip comments
@@ -393,7 +396,12 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 
 						if ( ! sMsgstr.IsEmpty() )
 						{
-							fputs( UTF8Encode( sId ) + "=" + UTF8Encode( EscapeLang( sMsgstr ) ) + "\n", fileAndSaveTo );
+							if ( bWritten )
+								fputs( "\n", fileAndSaveTo );
+
+							fputs( UTF8Encode( sId ) + "=" + UTF8Encode( EscapeLang( sMsgstr ) ), fileAndSaveTo );
+
+							bWritten = true;
 						}
 						// else Skip untranslated string
 
@@ -413,8 +421,13 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 
 			if ( fileAndSaveTo && ! bSaved )
 			{
+				if ( bWritten )
+					fputs( "\n", fileAndSaveTo );
+
 				// As is
 				fputs( UTF8Encode( sLine ), fileAndSaveTo );
+
+				bWritten = true;
 			}
 		}
 
@@ -497,12 +510,18 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 	CopyFile( _T("\\\\?\\") + sFilename, _T("\\\\?\\") + sFilename + _T(".bak"), FALSE );
 
 	// Create output file
+	bool bWritten = false;
 	FILE* fileOut = nullptr;
 	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wb") ) == 0 && fileOut )
 	{
 		for ( POSITION pos = out.GetHeadPosition(); pos; )
 		{
-			fputs( UTF8Encode( out.GetNextKey( pos ) ) + "\n", fileOut );
+			if ( bWritten )
+				fputs( "\n", fileOut );
+
+			fputs( UTF8Encode( out.GetNextKey( pos ) ), fileOut );
+
+			bWritten = true;
 		}
 
 		bResult = true;
