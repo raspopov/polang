@@ -48,6 +48,7 @@ protected:
 	CButton				m_wnd1Open;
 	CButton				m_wnd2Open;
 	CButton				m_wnd3Open;
+	CButton				m_wnd12Set;
 	CButton				m_wnd23Set;
 	int					m_nOptions, m_nOptionsLast;
 	CRect				m_rcInitial;
@@ -68,6 +69,7 @@ protected:
 	afx_msg void OnBnClicked1Open();
 	afx_msg void OnBnClicked2Open();
 	afx_msg void OnBnClicked3Open();
+	afx_msg void OnBnClicked12Set();
 	afx_msg void OnBnClicked23Set();
 
 	DECLARE_MESSAGE_MAP()

@@ -36,6 +36,16 @@ BEGIN_MESSAGE_MAP(CBrowseCtrl, CMFCEditBrowseCtrl)
 	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
+void CBrowseCtrl::OnBrowse()
+{
+	if ( ! m_sFolder.IsEmpty() )
+	{
+		SetCurrentDirectory( m_sFolder );
+	}
+
+	CMFCEditBrowseCtrl::OnBrowse();
+}
+
 // CBrowseCtrl message handlers
 
 void CBrowseCtrl::OnDropFiles( HDROP hDropInfo )

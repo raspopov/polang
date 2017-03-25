@@ -48,3 +48,25 @@ inline CString LoadString(UINT nId)
 	VERIFY( str.LoadString( nId ) );
 	return str;
 }
+
+inline CString TrimExtension(LPCTSTR szFilename)
+{
+	if ( ! szFilename || ! *szFilename )
+		return CString();
+	return CString( szFilename, (int)( PathFindExtension( szFilename ) - szFilename ) );
+}
+
+inline CString TrimFileName(LPCTSTR szFilename)
+{
+	if ( ! szFilename || ! *szFilename )
+		return CString();
+	return CString( szFilename, (int)( PathFindFileName( szFilename ) - szFilename ) );
+}
+
+inline bool IsFileName(LPCTSTR szFilename)
+{
+	if ( ! szFilename || ! *szFilename )
+		return false;
+	const DWORD attr = GetFileAttributes( szFilename );
+	return ( ( attr != INVALID_FILE_ATTRIBUTES ) && ( ( attr & FILE_ATTRIBUTE_DIRECTORY ) == 0 ) );
+}

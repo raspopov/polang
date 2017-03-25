@@ -29,7 +29,17 @@ class CBrowseCtrl : public CMFCEditBrowseCtrl
 public:
 	inline CBrowseCtrl() = default;
 
+	void SetFolder(const CString& sFolder)
+	{
+		m_sFolder = sFolder;
+		m_sFolder.TrimRight( _T( '\\' ) );
+	}
+
 protected:
+	CString		m_sFolder;
+
+	virtual void OnBrowse();
+
 	afx_msg void OnDropFiles( HDROP hDropInfo );
 
 	DECLARE_MESSAGE_MAP()
