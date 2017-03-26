@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/c6nhbsfxsesbqano?svg=true)](https://ci.appveyor.com/project/raspopov/polang)
+
 # Polang 
 
 ![Icon](http://www.cherubicsoft.com/_media/projects/polang/polang.png)
