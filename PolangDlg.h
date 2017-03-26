@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "BrowseCtrl.h"
+#include "afxwin.h"
 
 
 // CPolangDlg dialog
@@ -53,6 +54,8 @@ protected:
 	int					m_nOptions, m_nOptionsLast;
 	CRect				m_rcInitial;
 	CToolTipCtrl		m_pTips;
+	BOOL				m_bPreserve;
+	CButton				m_wndPreserve;
 
 	void UpdateInterface(int nOptions);
 
@@ -71,6 +74,7 @@ protected:
 	afx_msg void OnBnClicked3Open();
 	afx_msg void OnBnClicked12Set();
 	afx_msg void OnBnClicked23Set();
+	afx_msg void OnBnClickedFormat();
 
 	DECLARE_MESSAGE_MAP()
 };

@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VAL_PO			_T("PoPath")
 #define VAL_POT			_T("PotPath")
 #define VAL_WINDOW		_T("Window")
+#define VAL_PRESERVE	_T("Preserve")
 
 // CPolangDlg dialog
 
@@ -44,6 +45,7 @@ CPolangDlg::CPolangDlg(CWnd* pParent /*=NULL*/)
 	, m_hIcon			( theApp.LoadIcon( IDR_MAINFRAME ) )
 	, m_nOptions		( theApp.GetProfileInt( SETTINGS, VAL_OPTIONS, OPT_POT ) )
 	, m_nOptionsLast	( OPT_NULL )
+	, m_bPreserve		( theApp.GetProfileInt( SETTINGS, VAL_PRESERVE, TRUE ) )
 {
 }
 
@@ -67,6 +69,8 @@ void CPolangDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control( pDX, IDC_2_3_SET, m_wnd23Set );
 
 	DDX_Radio( pDX, IDC_RADIO1, m_nOptions );
+	DDX_Check( pDX, IDC_FORMAT, m_bPreserve );
+	DDX_Control( pDX, IDC_FORMAT, m_wndPreserve );
 }
 
 void CPolangDlg::UpdateInterface(int nOptions)
@@ -130,6 +134,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd3File.SetCueBanner( _T("") );
 		m_wnd3Open.EnableWindow( FALSE );
 		m_wnd23Set.EnableWindow( FALSE );
+		m_wndPreserve.EnableWindow( FALSE );
 		break;
 
 	case OPT_PO:
@@ -161,6 +166,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd3File.SetCueBanner( _T("ru_RU.po") );
 		m_wnd3Open.EnableWindow();
 		m_wnd23Set.EnableWindow();
+		m_wndPreserve.EnableWindow( FALSE );
 		break;
 
 	case OPT_LANG:
@@ -178,6 +184,8 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd1File.EnableFileBrowseButton( _T( "lang" ), LoadString( IDS_LANG_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST );
 		m_wnd1File.SetWindowText( s1Filename );
 		m_wnd1File.SetCueBanner( _T( "en_US.lang" ) );
+		m_wnd1File.EnableWindow( m_bPreserve );
+		m_wnd1Open.EnableWindow( m_bPreserve );
 		// Input
 		m_wnd2Title.SetWindowText( LoadString( IDS_PO_TITLE ) );
 		m_wnd2File.EnableFileBrowseButton( _T("po"), LoadString( IDS_POEDIT_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST );
@@ -192,6 +200,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd3File.SetCueBanner( _T( "ru_RU.lang" ) );
 		m_wnd3Open.EnableWindow();
 		m_wnd23Set.EnableWindow();
+		m_wndPreserve.EnableWindow();
 		break;
 	}
 
@@ -208,6 +217,8 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd2File.SetFolder( TrimFileName( s1Filename ) );
 		m_wnd3File.SetFolder( TrimFileName( s1Filename ) );
 	}
+
+	theApp.WriteProfileInt( SETTINGS, VAL_PRESERVE, m_bPreserve );
 }
 
 BEGIN_MESSAGE_MAP(CPolangDlg, CDialogEx)
@@ -223,6 +234,7 @@ BEGIN_MESSAGE_MAP(CPolangDlg, CDialogEx)
 	ON_BN_CLICKED( IDC_3_OPEN, &CPolangDlg::OnBnClicked3Open )
 	ON_BN_CLICKED( IDC_1_2_SET, &CPolangDlg::OnBnClicked12Set )
 	ON_BN_CLICKED( IDC_2_3_SET, &CPolangDlg::OnBnClicked23Set )
+	ON_BN_CLICKED( IDC_FORMAT, &CPolangDlg::OnBnClickedFormat )
 END_MESSAGE_MAP()
 
 // CPolangDlg message handlers
@@ -385,7 +397,7 @@ void CPolangDlg::OnOK()
 
 	case OPT_LANG:
 		// Local.po -> Local.lang
-		if ( s3Filename.IsEmpty() || ! IsFileName( s2Filename ) )
+		if ( s3Filename.IsEmpty() || ! IsFileName( s2Filename ) || ( m_bPreserve && ! IsFileName( s1Filename ) ) )
 		{
 			AfxMessageBox( IDS_MSG_NO_FILE, MB_OK | MB_ICONEXCLAMATION );
 			return;
@@ -397,10 +409,10 @@ void CPolangDlg::OnOK()
 			return;
 		}
 
-		if ( ! IsFileName( s1Filename ) )
+		if ( m_bPreserve )
 		{
-			// Save in sorted order
-			if ( ! translations.SaveLang( s3Filename ) )
+			// Save preserving order
+			if ( ! translations.LoadLang( s1Filename, false, s3Filename ) )
 			{
 				AfxMessageBox( IDS_MSG_LANG_SAVE_ERROR, MB_OK | MB_ICONEXCLAMATION );
 				return;
@@ -408,8 +420,8 @@ void CPolangDlg::OnOK()
 		}
 		else
 		{
-			// Ssve preserving order
-			if ( !translations.LoadLang( s1Filename, false, s3Filename ) )
+			// Save in sorted order
+			if ( ! translations.SaveLang( s3Filename ) )
 			{
 				AfxMessageBox( IDS_MSG_LANG_SAVE_ERROR, MB_OK | MB_ICONEXCLAMATION );
 				return;
@@ -483,8 +495,6 @@ void CPolangDlg::OnBnClicked3Open()
 
 void CPolangDlg::OnBnClicked12Set()
 {
-	CWaitCursor wc;
-
 	UpdateData();
 
 	CString s1Filename;
@@ -498,8 +508,6 @@ void CPolangDlg::OnBnClicked12Set()
 
 void CPolangDlg::OnBnClicked23Set()
 {
-	CWaitCursor wc;
-
 	UpdateData();
 
 	CString s2Filename;
@@ -507,6 +515,13 @@ void CPolangDlg::OnBnClicked23Set()
 
 	if ( ! s2Filename.IsEmpty() )
 		m_wnd3File.SetWindowText( _T("") );
+
+	UpdateInterface( m_nOptions );
+}
+
+void CPolangDlg::OnBnClickedFormat()
+{
+	UpdateData();
 
 	UpdateInterface( m_nOptions );
 }
