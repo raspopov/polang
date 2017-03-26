@@ -309,17 +309,13 @@ bool CTranslation::LoadPo(const CString& sFilename)
 	{
 		CString sFile;
 
-		while( ! feof( fileIn ) )
+		CAutoVectorPtr< TCHAR > szBuf( new TCHAR[ 1024 * 1024 ] );
+		while ( ! feof( fileIn ) )
 		{
-			CString sLine;
-			if ( ! _fgetts( sLine.GetBuffer( 1024 ), 1024, fileIn ) )
-			{
-				sLine.ReleaseBuffer( 0 );
+			if ( ! _fgetts( szBuf, 1024 * 1024, fileIn ) )
 				break;
-			}
-			sLine.ReleaseBuffer();
 
-			sFile.Append( sLine );			
+			sFile.Append( szBuf );			
 		}
 
 		bResult = LoadPoFromString( sFile );
@@ -366,18 +362,15 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 	FILE* fileIn = nullptr;
 	if ( _tfopen_s( &fileIn, _T("\\\\?\\") + sFilename, _T("rt,ccs=UTF-8") ) == 0 && fileIn )
 	{
-		while( ! feof( fileIn ) )
+		CAutoVectorPtr< TCHAR > szBuf( new TCHAR[ 1024 * 1024 ] );
+		while ( ! feof( fileIn ) )
 		{
 			bool bSaved = false;
 
-			CString sLine;
-			if ( ! _fgetts( sLine.GetBuffer( 1024 ), 1024, fileIn ) )
-			{
-				sLine.ReleaseBuffer( 0 );
+			if ( ! _fgetts( szBuf, 1024 * 1024, fileIn ) )
 				break;
-			}
-			sLine.ReleaseBuffer();
 
+			CString sLine( szBuf );
 			sLine.TrimRight( _T("\r\n") );
 
 			// "key=value"
