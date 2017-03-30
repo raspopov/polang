@@ -358,10 +358,11 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 	}
 
 	// Open input file
-	bool bWritten = false;
 	FILE* fileIn = nullptr;
 	if ( _tfopen_s( &fileIn, _T("\\\\?\\") + sFilename, _T("rt,ccs=UTF-8") ) == 0 && fileIn )
 	{
+		unsigned nEmpty = 0;
+
 		CAutoVectorPtr< TCHAR > szBuf( new TCHAR[ 1024 * 1024 ] );
 		while ( ! feof( fileIn ) )
 		{
@@ -389,12 +390,12 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 
 						if ( ! sMsgstr.IsEmpty() )
 						{
-							if ( bWritten )
+							if ( nEmpty )
 								fputs( "\n", fileAndSaveTo );
 
-							fputs( UTF8Encode( sId ) + "=" + UTF8Encode( EscapeLang( sMsgstr ) ), fileAndSaveTo );
+							fputs( UTF8Encode( sId ) + "=" + UTF8Encode( EscapeLang( sMsgstr ) ) + "\n", fileAndSaveTo );
 
-							bWritten = true;
+							nEmpty = 0;
 						}
 						// else Skip untranslated string
 
@@ -414,14 +415,20 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 
 			if ( fileAndSaveTo && ! bSaved )
 			{
-				if ( bWritten )
-					fputs( "\n", fileAndSaveTo );
-
 				// As is
-				fputs( UTF8Encode( sLine ), fileAndSaveTo );
+				if ( ! sLine.IsEmpty() )
+				{
+					if ( nEmpty )
+						fputs( "\n", fileAndSaveTo );
 
-				bWritten = true;
+					fputs( UTF8Encode( sLine ) + "\n", fileAndSaveTo );
+
+					nEmpty = 0;
+				}
 			}
+
+			if ( sLine.IsEmpty() )
+				++nEmpty;
 		}
 
 		fclose( fileIn );
@@ -493,9 +500,7 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 		{
 			const CString sId = trans.m_sId.GetNext( posI );
 			if ( ! trans.m_sMsgstr.IsEmpty() )
-			{
 				out.SetAt( sId + _T("=") + EscapeLang( trans.m_sMsgstr ), 0 );
-			}
 		}
 	}
 
@@ -503,19 +508,11 @@ bool CTranslation::SaveLang(const CString& sFilename) const
 	CopyFile( _T("\\\\?\\") + sFilename, _T("\\\\?\\") + sFilename + _T(".bak"), FALSE );
 
 	// Create output file
-	bool bWritten = false;
 	FILE* fileOut = nullptr;
 	if ( _tfopen_s( &fileOut, _T("\\\\?\\") + sFilename, _T("wb") ) == 0 && fileOut )
 	{
 		for ( POSITION pos = out.GetHeadPosition(); pos; )
-		{
-			if ( bWritten )
-				fputs( "\n", fileOut );
-
-			fputs( UTF8Encode( out.GetNextKey( pos ) ), fileOut );
-
-			bWritten = true;
-		}
+			fputs( UTF8Encode( out.GetNextKey( pos ) ) + "\n", fileOut );
 
 		bResult = true;
 
