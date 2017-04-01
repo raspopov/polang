@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/36bfd5e20408403bbbe01bc643e546a0)](https://www.codacy.com/app/raspopov/polang?utm_source=github.com&utm_medium=referral&utm_content=raspopov/polang&utm_campaign=badger)
 [![Build status](https://ci.appveyor.com/api/projects/status/c6nhbsfxsesbqano?svg=true)](https://ci.appveyor.com/project/raspopov/polang)
 
 # Polang 
