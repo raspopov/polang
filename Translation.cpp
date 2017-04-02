@@ -50,29 +50,42 @@ void CTranslation::SetAt(const CString& sId, const CString& sMsgid)
 		// Add new MsgId
 		m_MsgidToTrans.SetAt( sMsgid, CTrans( sId ) );
 	}
+
 	m_IdToMsgid.SetAt( sId, sMsgid );
+	m_IdToMsgidFuzzy.SetAt( Fuzzy( sId ), sMsgid );
 }
 
-void CTranslation::Add(const CString& sId, const CString& sMsgstr)
+void CTranslation::Add(const CString& sId, const CString& sMsgstr, bool bFuzzy)
 {
 	CString sMsgid;
-	if ( m_IdToMsgid.Lookup( sId, sMsgid ) )
+	if ( ! m_IdToMsgid.Lookup( sId, sMsgid ) )
 	{
-		CTrans trans;
-		if ( m_MsgidToTrans.Lookup( sMsgid, trans ) )
-		{
-			trans.m_sMsgstr = sMsgstr;
-			m_MsgidToTrans.SetAt( sMsgid, trans );
-		}
+		if ( ! bFuzzy || ! m_IdToMsgidFuzzy.Lookup( Fuzzy( sId ), sMsgid ) )
+			return;
+	}
+
+	CTrans trans;
+	if ( m_MsgidToTrans.Lookup( sMsgid, trans ) )
+	{
+		trans.m_sMsgstr = sMsgstr;
+		m_MsgidToTrans.SetAt( sMsgid, trans );
 	}
 }
 
-void CTranslation::Add(const CStringList& lIds, const CString& sMsgstr)
+void CTranslation::Add(const CStringList& lIds, const CString& sMsgstr, bool bFuzzy)
 {
 	for ( POSITION pos = lIds.GetHeadPosition(); pos; )
 	{
-		Add( lIds.GetNext( pos ), sMsgstr );
+		Add( lIds.GetNext( pos ), sMsgstr, bFuzzy );
 	}
+}
+
+CString CTranslation::Fuzzy(__in CString str)
+{
+	str.MakeLower();					// case-insensitive
+	str.Replace( _T("block"), _T("") );	// without "block" world
+	str.Remove( _T( '_' ) );			// without underscores
+	return str;
 }
 
 CStringA CTranslation::UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput)
@@ -194,7 +207,7 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 				case mode_msgstr:
 					// Save previous string
 					if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
-						Add( lRef, Decode( sString ) );
+						Add( lRef, Decode( sString ), false );
 					sString.Empty();
 					lRef.RemoveAll();
 					mode = mode_ref;
@@ -293,7 +306,7 @@ bool CTranslation::LoadPoFromString(const CString& sContent)
 	{
 		// Save last string
 		if ( ! lRef.IsEmpty() && ! sString.IsEmpty() )
-			Add( lRef, Decode( sString ) );
+			Add( lRef, Decode( sString ), false );
 	}
 
 	return bRet;
@@ -340,7 +353,7 @@ CString CTranslation::Get(const CString& sId) const
 	return CString();
 }
 
-bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CString& sAndSaveToFilename)
+bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, bool bFuzzy, const CString& sAndSaveToFilename)
 {
 	bool bResult = false;
 
@@ -404,7 +417,7 @@ bool CTranslation::LoadLang(const CString& sFilename, bool bMsgstr, const CStrin
 					else
 					{
 						if ( bMsgstr )
-							Add( sId, sMsgid );
+							Add( sId, sMsgid, bFuzzy );
 						else
 							SetAt( sId, sMsgid );
 					}

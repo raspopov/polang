@@ -37,6 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VAL_POT			_T("PotPath")
 #define VAL_WINDOW		_T("Window")
 #define VAL_PRESERVE	_T("Preserve")
+#define VAL_FUZZY		_T("Fuzzy")
 
 // CPolangDlg dialog
 
@@ -46,6 +47,7 @@ CPolangDlg::CPolangDlg(CWnd* pParent /*=NULL*/)
 	, m_nOptions		( theApp.GetProfileInt( SETTINGS, VAL_OPTIONS, OPT_POT ) )
 	, m_nOptionsLast	( OPT_NULL )
 	, m_bPreserve		( theApp.GetProfileInt( SETTINGS, VAL_PRESERVE, TRUE ) )
+	, m_bFuzzy			( theApp.GetProfileInt( SETTINGS, VAL_FUZZY, TRUE ) )
 {
 }
 
@@ -69,8 +71,12 @@ void CPolangDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control( pDX, IDC_2_3_SET, m_wnd23Set );
 
 	DDX_Radio( pDX, IDC_RADIO1, m_nOptions );
+
 	DDX_Check( pDX, IDC_FORMAT, m_bPreserve );
 	DDX_Control( pDX, IDC_FORMAT, m_wndPreserve );
+
+	DDX_Check( pDX, IDC_FUZZY, m_bFuzzy );
+	DDX_Control( pDX, IDC_FUZZY, m_wndFuzzy );
 }
 
 void CPolangDlg::UpdateInterface(int nOptions)
@@ -127,6 +133,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd2File.SetWindowText( s2Filename );
 		m_wnd2File.SetCueBanner( _T("en_US.pot") );
 		m_wnd12Set.EnableWindow();
+		m_wndFuzzy.EnableWindow( FALSE );
 		// Disabled
 		m_wnd3Title.SetWindowText( _T("") );
 		m_wnd3File.EnableWindow( FALSE );
@@ -158,6 +165,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd2File.SetWindowText( s2Filename );
 		m_wnd2File.SetCueBanner( _T("ru_RU.lang") );
 		m_wnd12Set.EnableWindow( FALSE );
+		m_wndFuzzy.EnableWindow();
 		// Output
 		m_wnd3Title.SetWindowText( LoadString( IDS_PO_TITLE ) );
 		m_wnd3File.EnableWindow();
@@ -192,6 +200,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		m_wnd2File.SetWindowText( s2Filename );
 		m_wnd2File.SetCueBanner( _T("ru_RU.po") );
 		m_wnd12Set.EnableWindow( FALSE );
+		m_wndFuzzy.EnableWindow( FALSE );
 		// Output
 		m_wnd3Title.SetWindowText( LoadString( IDS_LANG_TITLE ) );
 		m_wnd3File.EnableWindow();
@@ -219,6 +228,7 @@ void CPolangDlg::UpdateInterface(int nOptions)
 	}
 
 	theApp.WriteProfileInt( SETTINGS, VAL_PRESERVE, m_bPreserve );
+	theApp.WriteProfileInt( SETTINGS, VAL_FUZZY, m_bFuzzy );
 }
 
 BEGIN_MESSAGE_MAP(CPolangDlg, CDialogEx)
@@ -376,7 +386,7 @@ void CPolangDlg::OnOK()
 
 		if ( ! s2Filename.IsEmpty() )
 		{
-			if ( ! translations.LoadLang( s2Filename, true ) )
+			if ( ! translations.LoadLang( s2Filename, true, m_bFuzzy ) )
 			{
 				AfxMessageBox( IDS_MSG_LANG_ERROR, MB_OK | MB_ICONEXCLAMATION );
 				return;
@@ -412,7 +422,7 @@ void CPolangDlg::OnOK()
 		if ( m_bPreserve )
 		{
 			// Save preserving order
-			if ( ! translations.LoadLang( s1Filename, false, s3Filename ) )
+			if ( ! translations.LoadLang( s1Filename, false, false, s3Filename ) )
 			{
 				AfxMessageBox( IDS_MSG_LANG_SAVE_ERROR, MB_OK | MB_ICONEXCLAMATION );
 				return;

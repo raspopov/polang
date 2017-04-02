@@ -89,20 +89,22 @@ public:
 	void SetAt(const CStringList& lIds, const CString& sMsgid);
 
 	// Add localization
-	void Add(const CString& sId, const CString& sMsgstr);
-	void Add(const CStringList& lIds, const CString& sMsgstr);
+	void Add(const CString& sId, const CString& sMsgstr, bool bFuzzy);
+	void Add(const CStringList& lIds, const CString& sMsgstr, bool bFuzzy);
 
 	bool LoadPo(const CString& sFilename);
-	bool LoadLang(const CString& sFilename, bool bMsgstr = false, const CString& sAndSaveToFilename = CString());
+	bool LoadLang(const CString& sFilename, bool bMsgstr = false, bool bFuzzy = false, const CString& sAndSaveToFilename = CString());
 	bool SavePo(const CString& sFilename) const;
 	bool SaveLang(const CString& sFilename) const;
 
 private:
-	CRBMap < CString, CTrans >	m_MsgidToTrans;
-	CRBMap < CString, CString >	m_IdToMsgid;
+	CRBMap < CString, CTrans >	m_MsgidToTrans;		// msgid -> msgstr
+	CRBMap < CString, CString >	m_IdToMsgid;		// land_id -> msgid
+	CRBMap < CString, CString >	m_IdToMsgidFuzzy;	// Fuzzy( land_id ) -> msgid
 
 	bool LoadPoFromString(const CString& sContent);
 
+	static CString Fuzzy(__in CString str);
 	static CStringA UTF8Encode(__in_bcount(nInput) LPCWSTR psInput, __in int nInput);
 	static CStringA UTF8Encode(__in const CStringW& strInput);
 	static CString Decode(__in CString str);

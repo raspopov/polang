@@ -56,6 +56,8 @@ protected:
 	CToolTipCtrl		m_pTips;
 	BOOL				m_bPreserve;
 	CButton				m_wndPreserve;
+	BOOL				m_bFuzzy;
+	CButton				m_wndFuzzy;
 
 	void UpdateInterface(int nOptions);
 
