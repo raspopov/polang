@@ -22,7 +22,6 @@
     <ProjectGuid>{561DB5C3-786A-40E4-8F47-5F988E0D9A2C}</ProjectGuid>
     <RootNamespace>Polang</RootNamespace>
     <Keyword>MFCProj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
