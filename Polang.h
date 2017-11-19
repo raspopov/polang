@@ -35,13 +35,14 @@ public:
 	CPolangApp();
 
 protected:
-	virtual BOOL InitInstance();
+	virtual BOOL InitInstance() override;
 
 	DECLARE_MESSAGE_MAP()
 };
 
 extern CPolangApp theApp;
 
+// Load string from resources
 inline CString LoadString(UINT nId)
 {
 	CString str;
@@ -49,6 +50,7 @@ inline CString LoadString(UINT nId)
 	return str;
 }
 
+// Cut off file extension (i.e. extract path + filename only)
 inline CString TrimExtension(LPCTSTR szFilename)
 {
 	if ( ! szFilename || ! *szFilename )
@@ -56,6 +58,7 @@ inline CString TrimExtension(LPCTSTR szFilename)
 	return CString( szFilename, (int)( PathFindExtension( szFilename ) - szFilename ) );
 }
 
+// Cut off file name from path (i.e. extract path only)
 inline CString TrimFileName(LPCTSTR szFilename)
 {
 	if ( ! szFilename || ! *szFilename )
@@ -63,6 +66,7 @@ inline CString TrimFileName(LPCTSTR szFilename)
 	return CString( szFilename, (int)( PathFindFileName( szFilename ) - szFilename ) );
 }
 
+// Check if this is a real file on disk
 inline bool IsFileName(LPCTSTR szFilename)
 {
 	if ( ! szFilename || ! *szFilename )

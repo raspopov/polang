@@ -21,20 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "BrowseCtrl.h"
-#include "afxwin.h"
-
 
 // CPolangDlg dialog
 
 class CPolangDlg : public CDialogEx
 {
 public:
-	CPolangDlg(CWnd* pParent = nullptr);	// standard constructor
+	CPolangDlg(CWnd* pParent = nullptr);
 
-// Dialog Data
-#ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_POLANG_DIALOG };
-#endif
 
 protected:
 	enum { OPT_NULL = -1, OPT_POT = 0, OPT_PO = 1, OPT_LANG = 2 };
@@ -61,10 +56,10 @@ protected:
 
 	void UpdateInterface(int nOptions);
 
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	virtual BOOL PreTranslateMessage( MSG* pMsg );
+	virtual void DoDataExchange(CDataExchange* pDX) override;	// DDX/DDV support
+	virtual BOOL OnInitDialog() override;
+	virtual void OnOK() override;
+	virtual BOOL PreTranslateMessage( MSG* pMsg ) override;
 
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
@@ -77,6 +72,7 @@ protected:
 	afx_msg void OnBnClicked12Set();
 	afx_msg void OnBnClicked23Set();
 	afx_msg void OnBnClickedFormat();
+	afx_msg void OnDragDropFile( NMHDR *pNMHDR, LRESULT *pResult );
 
 	DECLARE_MESSAGE_MAP()
 };

@@ -46,6 +46,7 @@ WizardImageFile=compiler:WizModernImage-IS.bmp
 WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
 SetupMutex=Global\Setup_{#MyAppName}
 OutputManifestFile=Setup-Manifest.txt
+ChangesAssociations=yes
 #if Platform == "x64"
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
@@ -71,11 +72,15 @@ Name: "{group}\License.txt"; Filename: "{app}\License.txt"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}";	Filename: "{uninstallexe}"
 
 [Run]
+Filename: "{app}\{#MyAppExe}"; Parameters: "/RegServer"; StatusMsg: "Registering..."
 Filename: "{app}\{#MyAppExe}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall runasoriginaluser
 
 [Registry]
 Root: HKCU; Subkey: "Software\{#MyAppPublisher}\{#MyAppName}"; Flags: dontcreatekey uninsdeletekey
 Root: HKCU; Subkey: "Software\{#MyAppPublisher}"; Flags: dontcreatekey uninsdeletekeyifempty
+
+[UninstallRun]
+Filename: "{app}\{#MyAppExe}"; Parameters: "/UnRegServer"; StatusMsg: "Unregistering..."; Flags: skipifdoesntexist
 
 [UninstallDelete]
 Name: "{userstartup}\{#MyAppName}.lnk"; Type: files

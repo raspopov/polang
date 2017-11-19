@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "stdafx.h"
-#include "Polang.h"
 #include "BrowseCtrl.h"
 
 #ifdef _DEBUG
@@ -54,6 +53,12 @@ void CBrowseCtrl::OnDropFiles( HDROP hDropInfo )
 	if ( DragQueryFile( hDropInfo, 0, szItem, _countof( szItem ) ) && ( GetFileAttributes( szItem ) & FILE_ATTRIBUTE_DIRECTORY ) == 0 )
 	{
 		SetWindowText( szItem );
+
+		if ( auto pOwner = GetParent() )
+		{
+			NMHDR hdr = { GetSafeHwnd(), (UINT_PTR)GetDlgCtrlID(), NM_DRAGDROP };
+			pOwner->SendMessage( WM_NOTIFY, (WPARAM)hdr.idFrom, (LPARAM)&hdr );
+		}
 	}
 
 	DragFinish( hDropInfo );

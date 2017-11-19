@@ -39,10 +39,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VAL_PRESERVE	_T("Preserve")
 #define VAL_FUZZY		_T("Fuzzy")
 
+#define Ext_pot			_T(".pot")
+#define Ext_po			_T(".po")
+#define Ext_lang		_T(".lang")
+
+#define en_US_lang		_T("en_US.lang")
+#define en_US_pot		_T("en_US.pot")
+
 // CPolangDlg dialog
 
 CPolangDlg::CPolangDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx			( IDD_POLANG_DIALOG, pParent )
+	: CDialogEx			( IDD, pParent )
 	, m_hIcon			( theApp.LoadIcon( IDR_MAINFRAME ) )
 	, m_nOptions		( theApp.GetProfileInt( SETTINGS, VAL_OPTIONS, OPT_POT ) )
 	, m_nOptionsLast	( OPT_NULL )
@@ -118,20 +125,20 @@ void CPolangDlg::UpdateInterface(int nOptions)
 	case OPT_POT:
 		s1Filename = theApp.GetProfileString( SETTINGS, VAL_ENGLISH );
 		s2Filename = theApp.GetProfileString( SETTINGS, VAL_POT );
-		if ( s2Filename.IsEmpty() && IsFileName( s1Filename ) )
-			s2Filename = TrimExtension( s1Filename ) + _T( ".pot" );
-		if ( s1Filename.IsEmpty() && IsFileName( s2Filename ) )
-			s1Filename = TrimExtension( s2Filename ) + _T( ".lang" );
+		if ( s2Filename.IsEmpty() && ! s1Filename.IsEmpty() )
+			s2Filename = TrimExtension( s1Filename ) + Ext_pot;
+		if ( s1Filename.IsEmpty() && ! s2Filename.IsEmpty() )
+			s1Filename = TrimExtension( s2Filename ) + Ext_lang;
 		// Input
 		m_wnd1Title.SetWindowText( LoadString( IDS_ENGLISH_TITLE ) );
 		m_wnd1File.EnableFileBrowseButton( _T("lang"), LoadString( IDS_LANG_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST );
 		m_wnd1File.SetWindowText( s1Filename );
-		m_wnd1File.SetCueBanner( _T("en_US.lang") );
+		m_wnd1File.SetCueBanner( en_US_lang );
 		// Output
 		m_wnd2Title.SetWindowText( LoadString( IDS_POT_TITLE ) );
 		m_wnd2File.EnableFileBrowseButton( _T("pot"), LoadString( IDS_POEDIT_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT );
 		m_wnd2File.SetWindowText( s2Filename );
-		m_wnd2File.SetCueBanner( _T("en_US.pot") );
+		m_wnd2File.SetCueBanner( en_US_pot );
 		m_wnd12Set.EnableWindow();
 		m_wndFuzzy.EnableWindow( FALSE );
 		// Disabled
@@ -148,17 +155,17 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		s1Filename = theApp.GetProfileString( SETTINGS, VAL_ENGLISH );
 		s2Filename = theApp.GetProfileString( SETTINGS, VAL_LANG );
 		s3Filename = theApp.GetProfileString( SETTINGS, VAL_PO );
-		if ( s3Filename.IsEmpty() && IsFileName( s2Filename ) )
-			s3Filename = TrimExtension( s2Filename ) + _T( ".po" );
-		if ( s2Filename.IsEmpty() && IsFileName( s3Filename ) )
-			s2Filename = TrimExtension( s3Filename ) + _T( ".lang" );
-		if ( s1Filename.IsEmpty() && IsFileName( s2Filename ) )
-			s1Filename = TrimFileName( s2Filename ) + _T( "en_US.lang" );
+		if ( s3Filename.IsEmpty() && ! s2Filename.IsEmpty() )
+			s3Filename = TrimExtension( s2Filename ) + Ext_po;
+		if ( s2Filename.IsEmpty() && ! s3Filename.IsEmpty() )
+			s2Filename = TrimExtension( s3Filename ) + Ext_lang;
+		if ( s1Filename.IsEmpty() && ! s2Filename.IsEmpty() )
+			s1Filename = TrimFileName( s2Filename ) + en_US_lang;
 		// Input
 		m_wnd1Title.SetWindowText( LoadString( IDS_ENGLISH_TITLE ) );
 		m_wnd1File.EnableFileBrowseButton( _T("lang"), LoadString( IDS_LANG_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST );
 		m_wnd1File.SetWindowText( s1Filename );
-		m_wnd1File.SetCueBanner( _T("en_US.lang") );
+		m_wnd1File.SetCueBanner( en_US_lang );
 		// Input
 		m_wnd2Title.SetWindowText( LoadString( IDS_LANG_TITLE ) );
 		m_wnd2File.EnableFileBrowseButton( _T("lang"), LoadString( IDS_LANG_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST );
@@ -181,17 +188,17 @@ void CPolangDlg::UpdateInterface(int nOptions)
 		s1Filename = theApp.GetProfileString( SETTINGS, VAL_ENGLISH );
 		s2Filename = theApp.GetProfileString( SETTINGS, VAL_PO );
 		s3Filename = theApp.GetProfileString( SETTINGS, VAL_LANG );
-		if ( s3Filename.IsEmpty() && IsFileName( s2Filename ) )
-			s3Filename = TrimExtension( s2Filename ) + _T( ".lang" );
-		if ( s2Filename.IsEmpty() && IsFileName( s3Filename ) )
-			s2Filename = TrimExtension( s3Filename ) + _T( ".po" );
-		if ( s1Filename.IsEmpty() && IsFileName( s2Filename ) )
-			s1Filename = TrimFileName( s2Filename ) + _T( "en_US.lang" );
+		if ( s3Filename.IsEmpty() && ! s2Filename.IsEmpty() )
+			s3Filename = TrimExtension( s2Filename ) + Ext_lang;
+		if ( s2Filename.IsEmpty() && ! s3Filename.IsEmpty() )
+			s2Filename = TrimExtension( s3Filename ) + Ext_po;
+		if ( s1Filename.IsEmpty() && ! s2Filename.IsEmpty() )
+			s1Filename = TrimFileName( s2Filename ) + en_US_lang;
 		// Input
 		m_wnd1Title.SetWindowText( LoadString( IDS_ENGLISH_TITLE ) );
 		m_wnd1File.EnableFileBrowseButton( _T( "lang" ), LoadString( IDS_LANG_FILES ), OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST );
 		m_wnd1File.SetWindowText( s1Filename );
-		m_wnd1File.SetCueBanner( _T( "en_US.lang" ) );
+		m_wnd1File.SetCueBanner( en_US_lang );
 		m_wnd1File.EnableWindow( m_bPreserve );
 		m_wnd1Open.EnableWindow( m_bPreserve );
 		// Input
@@ -245,6 +252,9 @@ BEGIN_MESSAGE_MAP(CPolangDlg, CDialogEx)
 	ON_BN_CLICKED( IDC_1_2_SET, &CPolangDlg::OnBnClicked12Set )
 	ON_BN_CLICKED( IDC_2_3_SET, &CPolangDlg::OnBnClicked23Set )
 	ON_BN_CLICKED( IDC_FORMAT, &CPolangDlg::OnBnClickedFormat )
+	ON_NOTIFY( NM_DRAGDROP, IDC_1_FILE, &CPolangDlg::OnDragDropFile )
+	ON_NOTIFY( NM_DRAGDROP, IDC_2_FILE, &CPolangDlg::OnDragDropFile )
+	ON_NOTIFY( NM_DRAGDROP, IDC_3_FILE, &CPolangDlg::OnDragDropFile )
 END_MESSAGE_MAP()
 
 // CPolangDlg message handlers
@@ -253,7 +263,7 @@ BOOL CPolangDlg::OnInitDialog()
 {
 	__super::OnInitDialog();
 
-	SetWindowText( theApp.m_pszAppName );
+	SetWindowText( AfxGetAppName() );
 
 	GetWindowRect( m_rcInitial );
 
@@ -264,10 +274,10 @@ BOOL CPolangDlg::OnInitDialog()
 	m_pTips.Activate( TRUE );
 	m_pTips.SetMaxTipWidth( 300 );
 
-	static CWnd* wnds[] = { &m_wnd1Open, &m_wnd2Open, &m_wnd3Open, &m_wnd12Set, &m_wnd23Set };
-	for ( int i = 0; i < _countof( wnds ); ++i )
+	static CWnd* const wnds[] = { &m_wnd1Open, &m_wnd2Open, &m_wnd3Open, &m_wnd12Set, &m_wnd23Set };
+	for (auto & wnd : wnds)
 	{
-		m_pTips.AddTool( wnds[ i ], LoadString( wnds[ i ]->GetDlgCtrlID() ) );
+		m_pTips.AddTool( wnd, LoadString( wnd->GetDlgCtrlID() ) );
 	}
 
 	m_wnd1Open.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_RUN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
@@ -276,15 +286,64 @@ BOOL CPolangDlg::OnInitDialog()
 	m_wnd12Set.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_DOWN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
 	m_wnd23Set.SetIcon( ( HICON )LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_DOWN ), IMAGE_ICON, 16, 16, LR_SHARED ) );
 
-	UpdateInterface( m_nOptions );
-
+	// Restore window size and position
 	CAutoVectorPtr< WINDOWPLACEMENT> pl;
 	UINT len = 0;
-	theApp.GetProfileBinary( SETTINGS, VAL_WINDOW, (LPBYTE*)&pl, &len );
-	if ( len == sizeof( WINDOWPLACEMENT ) )
+	if ( theApp.GetProfileBinary( SETTINGS, VAL_WINDOW, (LPBYTE*)&pl.m_p, &len ) &&
+		len == sizeof( WINDOWPLACEMENT ) && pl.m_p->length == sizeof( WINDOWPLACEMENT ) )
 	{
 		SetWindowPlacement( pl );
 	}
+
+	// Parse command-line options
+	CString sStartupFile;
+	int nArgs = 0;
+	if ( LPWSTR* szArglist = CommandLineToArgvW( GetCommandLineW(), &nArgs ) )
+	{
+		if ( nArgs > 1 )
+		{
+			sStartupFile = szArglist[ 1 ];
+		}
+		LocalFree( szArglist );
+	}
+
+	LPCTSTR szStartupExt = PathFindExtension( sStartupFile );
+	LPCTSTR szStartupName = PathFindFileName( sStartupFile );
+	if ( _tcsicmp( szStartupExt, Ext_lang ) == 0 )
+	{
+		if ( _tcsicmp( szStartupName, en_US_lang ) == 0 )
+		{
+			m_nOptions = OPT_POT;
+			theApp.WriteProfileString( SETTINGS, VAL_ENGLISH, sStartupFile );
+			theApp.WriteProfileString( SETTINGS, VAL_POT, TrimFileName( sStartupFile ) + en_US_pot );
+		}
+		else
+		{
+			m_nOptions = OPT_PO;
+			theApp.WriteProfileString( SETTINGS, VAL_ENGLISH, TrimFileName( sStartupFile ) + en_US_lang );
+			theApp.WriteProfileString( SETTINGS, VAL_POT, TrimFileName( sStartupFile ) + en_US_pot );
+			theApp.WriteProfileString( SETTINGS, VAL_PO, TrimExtension( sStartupFile ) + Ext_po );
+			theApp.WriteProfileString( SETTINGS, VAL_LANG, sStartupFile );
+		}
+	}
+	else if ( _tcsicmp( szStartupExt, Ext_pot ) == 0 )
+	{
+		m_nOptions = OPT_POT;
+		theApp.WriteProfileString( SETTINGS, VAL_ENGLISH, TrimFileName( sStartupFile ) + en_US_lang );
+		theApp.WriteProfileString( SETTINGS, VAL_POT, sStartupFile );
+	}
+	else if ( _tcsicmp( szStartupExt, Ext_po ) == 0 )
+	{
+		m_nOptions = OPT_LANG;
+		theApp.WriteProfileString( SETTINGS, VAL_ENGLISH, TrimFileName( sStartupFile ) + en_US_lang );
+		theApp.WriteProfileString( SETTINGS, VAL_POT, TrimFileName( sStartupFile ) + en_US_pot );
+		theApp.WriteProfileString( SETTINGS, VAL_PO, sStartupFile );
+		theApp.WriteProfileString( SETTINGS, VAL_LANG, TrimExtension( sStartupFile ) + Ext_lang );
+	}
+
+	UpdateData( FALSE );
+
+	UpdateInterface( m_nOptions );
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -457,9 +516,12 @@ void CPolangDlg::OnDestroy()
 {
 	UpdateInterface( OPT_NULL );
 
+	// Save window size and position
 	WINDOWPLACEMENT pl = { sizeof( WINDOWPLACEMENT ) };
-	GetWindowPlacement( &pl );
-	theApp.WriteProfileBinary( SETTINGS, VAL_WINDOW, (LPBYTE)&pl, sizeof( WINDOWPLACEMENT ) );
+	if ( GetWindowPlacement( &pl ) )
+	{
+		theApp.WriteProfileBinary( SETTINGS, VAL_WINDOW, (LPBYTE)&pl, sizeof( WINDOWPLACEMENT ) );
+	}
 
 	__super::OnDestroy();
 }
@@ -534,4 +596,84 @@ void CPolangDlg::OnBnClickedFormat()
 	UpdateData();
 
 	UpdateInterface( m_nOptions );
+}
+
+void CPolangDlg::OnDragDropFile(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	UpdateData();
+
+	CString s1Filename, s2Filename, s3Filename;
+	m_wnd1File.GetWindowText( s1Filename );
+	m_wnd2File.GetWindowText( s2Filename );
+	m_wnd3File.GetWindowText( s3Filename );
+
+	CString sUpdated;
+	switch ( pNMHDR->idFrom )
+	{
+	case IDC_1_FILE:
+		sUpdated = s1Filename;
+		break;
+
+	case IDC_2_FILE:
+		sUpdated = s2Filename;
+		break;
+
+	case IDC_3_FILE:
+		sUpdated = s3Filename;
+		break;
+	}
+	const CString sDir = TrimFileName( sUpdated );
+	LPCTSTR szExt = PathFindExtension( sUpdated );
+	const bool bAuto = ( _tcsicmp( szExt, Ext_pot ) == 0 ) || ( _tcsicmp( szExt, Ext_po ) == 0 ) || ( _tcsicmp( szExt, Ext_lang ) == 0 );
+
+	if ( bAuto )
+	{
+		switch ( m_nOptions )
+		{
+		case OPT_POT:
+			m_wnd1File.SetWindowText( TrimExtension( sUpdated ) + Ext_lang );
+			m_wnd2File.SetWindowText( TrimExtension( sUpdated ) + Ext_pot );
+			break;
+
+		case OPT_PO:
+			switch ( pNMHDR->idFrom )
+			{
+			case IDC_1_FILE:
+				m_wnd1File.SetWindowText( TrimExtension( sUpdated ) + Ext_lang );
+				m_wnd2File.SetWindowText( TrimExtension( sDir + PathFindFileName( s2Filename ) ) + Ext_lang );
+				m_wnd3File.SetWindowText( TrimExtension( sDir + PathFindFileName( s3Filename ) ) + Ext_po );
+				break;
+
+			case IDC_2_FILE:
+			case IDC_3_FILE:
+				m_wnd1File.SetWindowText( TrimExtension( sDir + PathFindFileName( s1Filename ) ) + Ext_lang );
+				m_wnd2File.SetWindowText( TrimExtension( sUpdated ) + Ext_lang );
+				m_wnd3File.SetWindowText( TrimExtension( sUpdated ) + Ext_po );
+				break;
+			}
+			break;
+
+		case OPT_LANG:
+			switch ( pNMHDR->idFrom )
+			{
+			case IDC_1_FILE:
+				m_wnd1File.SetWindowText( TrimExtension( sUpdated ) + Ext_lang );
+				m_wnd2File.SetWindowText( TrimExtension( sDir + PathFindFileName( s2Filename ) ) + Ext_po );
+				m_wnd3File.SetWindowText( TrimExtension( sDir + PathFindFileName( s3Filename ) ) + Ext_lang );
+				break;
+
+			case IDC_2_FILE:
+			case IDC_3_FILE:
+				m_wnd1File.SetWindowText( TrimExtension( sDir + PathFindFileName( s1Filename ) ) + Ext_lang );
+				m_wnd2File.SetWindowText( TrimExtension( sUpdated ) + Ext_po );
+				m_wnd3File.SetWindowText( TrimExtension( sUpdated ) + Ext_lang );
+				break;
+			}
+			break;
+		}
+
+		UpdateInterface( m_nOptions );
+	}
+
+	*pResult = 0;
 }

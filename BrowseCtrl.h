@@ -44,3 +44,5 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 };
+
+#define NM_DRAGDROP (NM_FIRST + 1)
