@@ -19,7 +19,7 @@ This utility can help in translation of .lang-based programs like Minecraft and 
 
 ## Copyright
 
-Copyright (C) 2017 Nikolay Raspopov <<raspopov@cherubicsoft.com>>
+Copyright (C) 2017-2024 Nikolay Raspopov <<raspopov@cherubicsoft.com>>
 https://github.com/raspopov/polang
 
 This program is free software: you can redistribute it and/or modify
